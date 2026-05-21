@@ -1,0 +1,4 @@
+com.dormiq.test.app-androidTest-0 C:\Users\ReNot\Downloads\Dormiq\app\build\generated\res\resValues\androidTest\debug
+com.dormiq.test.app-mergeDebugAndroidTestResources-1 C:\Users\ReNot\Downloads\Dormiq\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.dormiq.test.app-mergeDebugAndroidTestResources-2 C:\Users\ReNot\Downloads\Dormiq\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.dormiq.test.app-debugAndroidTest-3 C:\Users\ReNot\Downloads\Dormiq\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "730051150479",
+    "project_id": "dormiq-1be4c",
+    "storage_bucket": "dormiq-1be4c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730051150479:android:fe82a237d586e67a1066fa",
+        "android_client_info": {
+          "package_name": "com.dormiq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRxiTDLiW7UOvM8K6nApO3uDfTxmoryrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
