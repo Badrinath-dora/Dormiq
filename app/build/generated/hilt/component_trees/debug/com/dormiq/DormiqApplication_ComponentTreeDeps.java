@@ -32,6 +32,8 @@ import hilt_aggregated_deps._com_dormiq_ui_viewmodel_GalleryFoodViewModel_HiltMo
 import hilt_aggregated_deps._com_dormiq_ui_viewmodel_GalleryFoodViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_dormiq_ui_viewmodel_IssueViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_dormiq_ui_viewmodel_IssueViewModel_HiltModules_KeyModule;
+import hilt_aggregated_deps._com_dormiq_ui_viewmodel_ManagePropertiesViewModel_HiltModules_BindsModule;
+import hilt_aggregated_deps._com_dormiq_ui_viewmodel_ManagePropertiesViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_dormiq_ui_viewmodel_NoticeViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_dormiq_ui_viewmodel_NoticeViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_dormiq_ui_viewmodel_PaymentViewModel_HiltModules_BindsModule;
@@ -97,6 +99,8 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_dormiq_ui_viewmodel_GalleryFoodViewModel_HiltModules_KeyModule.class,
         _com_dormiq_ui_viewmodel_IssueViewModel_HiltModules_BindsModule.class,
         _com_dormiq_ui_viewmodel_IssueViewModel_HiltModules_KeyModule.class,
+        _com_dormiq_ui_viewmodel_ManagePropertiesViewModel_HiltModules_BindsModule.class,
+        _com_dormiq_ui_viewmodel_ManagePropertiesViewModel_HiltModules_KeyModule.class,
         _com_dormiq_ui_viewmodel_NoticeViewModel_HiltModules_BindsModule.class,
         _com_dormiq_ui_viewmodel_NoticeViewModel_HiltModules_KeyModule.class,
         _com_dormiq_ui_viewmodel_PaymentViewModel_HiltModules_BindsModule.class,

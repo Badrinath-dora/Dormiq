@@ -569,7 +569,8 @@ fun OwnerBottomNavHost(
                 ProfileSettingsScreen(
                     onLogout = onLogout,
                     onBack = { navController.popBackStack() },
-                    onEditProfile = { navController.navigate("o_edit_profile") }
+                    onEditProfile = { navController.navigate("o_edit_profile") },
+                    onNavigateToManageProperties = { navController.navigate("o_manage_properties") }
                 )
             }
 
@@ -577,6 +578,20 @@ fun OwnerBottomNavHost(
                 EditProfileScreen(
                     onBack = { navController.popBackStack() },
                     onSuccess = { navController.popBackStack() }
+                )
+            }
+
+            composable("o_manage_properties") {
+                ManagePropertiesScreen(
+                    onBack = { navController.popBackStack() },
+                    onRegisterNewHostel = {
+                        onNavigateToSetup()
+                    },
+                    onHostelSwitched = {
+                        navController.navigate("o_dashboard") {
+                            popUpTo("o_dashboard") { inclusive = true }
+                        }
+                    }
                 )
             }
         }

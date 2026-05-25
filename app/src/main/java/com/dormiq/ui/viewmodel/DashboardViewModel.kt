@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.dormiq.data.manager.ActiveHostelManager
 
 data class BedWithTenant(
     val bed: Bed,
@@ -37,6 +38,7 @@ data class FloorWithRooms(
 class DashboardViewModel @Inject constructor(
     private val hostelRepository: HostelRepository,
     private val authRepository: AuthRepository,
+    private val activeHostelManager: ActiveHostelManager,
     private val supabase: SupabaseClient
 ) : ViewModel() {
 
@@ -56,16 +58,19 @@ class DashboardViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     init {
-        loadDashboardData()
+        viewModelScope.launch {
+            activeHostelManager.activeHostelIdFlow.collect {
+                loadDashboardData()
+            }
+        }
     }
 
     fun loadDashboardData() {
         viewModelScope.launch {
             _isLoading.value = true
-            val ownerId = authRepository.getCurrentUser()?.id ?: return@launch
-            val hostelResult = hostelRepository.getHostelByOwner(ownerId)
-            if (hostelResult.isSuccess) {
-                val hostelData = hostelResult.getOrNull()
+            val activeHostelId = activeHostelManager.getActiveHostelId()
+            if (activeHostelId != null) {
+                val hostelData = hostelRepository.getHostel(activeHostelId)
                 _hostel.value = hostelData
                 if (hostelData != null) {
                     loadLayout(hostelData.id)
@@ -91,7 +96,38 @@ class DashboardViewModel @Inject constructor(
                     _isLoading.value = false
                 }
             } else {
-                _isLoading.value = false
+                val ownerId = authRepository.getCurrentUser()?.id ?: return@launch
+                val hostelResult = hostelRepository.getHostelByOwner(ownerId)
+                if (hostelResult.isSuccess) {
+                    val hostelData = hostelResult.getOrNull()
+                    _hostel.value = hostelData
+                    if (hostelData != null) {
+                        activeHostelManager.setActiveHostelId(hostelData.id)
+                        loadLayout(hostelData.id)
+                        // Fetch recent issues
+                        try {
+                            val recentIssues = supabase.postgrest["issues"]
+                                .select {
+                                    filter { eq("hostel_id", hostelData.id) }
+                                }
+                                .decodeList<Issue>()
+                                .sortedByDescending { it.createdAt }
+                                .take(3)
+                            _issues.value = recentIssues
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
+                        hostelRepository.getStats(hostelData.id).collect { newStats ->
+                            _stats.value = newStats
+                            _isLoading.value = false
+                        }
+                    } else {
+                        _isLoading.value = false
+                    }
+                } else {
+                    _isLoading.value = false
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ interface AuthRepository {
     suspend fun verifyOtp(phone: String, otp: String): Result<UserProfile>
     suspend fun loginWithPassword(userId: String, password: String): Result<UserProfile>
     suspend fun completeRegistration(hostelId: String): Result<Unit>
+    suspend fun switchActiveHostel(hostelId: String): Result<Unit>
     suspend fun updateProfile(userId: String, name: String, email: String? = null, role: UserRole? = null): Result<Unit>
     suspend fun logout()
     suspend fun syncFcmToken()
@@ -20,6 +21,7 @@ interface HostelRepository {
     fun getHostels(): Flow<List<Hostel>>
     suspend fun getHostel(hostelId: String): Hostel?
     suspend fun getHostelByOwner(ownerId: String): Result<Hostel>
+    fun getHostelsByOwner(ownerId: String): Flow<List<Hostel>>
     suspend fun createHostel(hostel: Hostel): Result<Hostel>
     suspend fun updateHostel(hostel: Hostel): Result<Unit>
     fun getStats(hostelId: String): Flow<OccupancyStats>

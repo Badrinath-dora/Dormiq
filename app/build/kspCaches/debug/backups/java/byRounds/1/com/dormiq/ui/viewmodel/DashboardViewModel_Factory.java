@@ -1,5 +1,6 @@
 package com.dormiq.ui.viewmodel;
 
+import com.dormiq.data.manager.ActiveHostelManager;
 import com.dormiq.domain.repository.AuthRepository;
 import com.dormiq.domain.repository.HostelRepository;
 import dagger.internal.DaggerGenerated;
@@ -29,28 +30,36 @@ public final class DashboardViewModel_Factory implements Factory<DashboardViewMo
 
   private final Provider<AuthRepository> authRepositoryProvider;
 
+  private final Provider<ActiveHostelManager> activeHostelManagerProvider;
+
   private final Provider<SupabaseClient> supabaseProvider;
 
   public DashboardViewModel_Factory(Provider<HostelRepository> hostelRepositoryProvider,
-      Provider<AuthRepository> authRepositoryProvider, Provider<SupabaseClient> supabaseProvider) {
+      Provider<AuthRepository> authRepositoryProvider,
+      Provider<ActiveHostelManager> activeHostelManagerProvider,
+      Provider<SupabaseClient> supabaseProvider) {
     this.hostelRepositoryProvider = hostelRepositoryProvider;
     this.authRepositoryProvider = authRepositoryProvider;
+    this.activeHostelManagerProvider = activeHostelManagerProvider;
     this.supabaseProvider = supabaseProvider;
   }
 
   @Override
   public DashboardViewModel get() {
-    return newInstance(hostelRepositoryProvider.get(), authRepositoryProvider.get(), supabaseProvider.get());
+    return newInstance(hostelRepositoryProvider.get(), authRepositoryProvider.get(), activeHostelManagerProvider.get(), supabaseProvider.get());
   }
 
   public static DashboardViewModel_Factory create(
       Provider<HostelRepository> hostelRepositoryProvider,
-      Provider<AuthRepository> authRepositoryProvider, Provider<SupabaseClient> supabaseProvider) {
-    return new DashboardViewModel_Factory(hostelRepositoryProvider, authRepositoryProvider, supabaseProvider);
+      Provider<AuthRepository> authRepositoryProvider,
+      Provider<ActiveHostelManager> activeHostelManagerProvider,
+      Provider<SupabaseClient> supabaseProvider) {
+    return new DashboardViewModel_Factory(hostelRepositoryProvider, authRepositoryProvider, activeHostelManagerProvider, supabaseProvider);
   }
 
   public static DashboardViewModel newInstance(HostelRepository hostelRepository,
-      AuthRepository authRepository, SupabaseClient supabase) {
-    return new DashboardViewModel(hostelRepository, authRepository, supabase);
+      AuthRepository authRepository, ActiveHostelManager activeHostelManager,
+      SupabaseClient supabase) {
+    return new DashboardViewModel(hostelRepository, authRepository, activeHostelManager, supabase);
   }
 }

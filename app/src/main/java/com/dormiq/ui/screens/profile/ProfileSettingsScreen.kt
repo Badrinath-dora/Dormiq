@@ -31,6 +31,7 @@ fun ProfileSettingsScreen(
     onLogout: () -> Unit,
     onBack: () -> Unit,
     onEditProfile: () -> Unit,
+    onNavigateToManageProperties: () -> Unit = {},
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val authState by authViewModel.authState.collectAsState()
@@ -180,7 +181,10 @@ fun ProfileSettingsScreen(
                 item {
                     SettingsSection(title = "Account") {
                         SettingsItem(Icons.Default.Person, "Edit Profile", onClick = onEditProfile)
-                        if (isOwner) SettingsItem(Icons.Default.Apartment, "Hostel Settings", onClick = { activeDialog = "Hostel Settings" })
+                        if (isOwner) {
+                            SettingsItem(Icons.Default.Apartment, "Manage Properties", onClick = onNavigateToManageProperties)
+                            SettingsItem(Icons.Default.Settings, "Hostel Settings", onClick = { activeDialog = "Hostel Settings" })
+                        }
                     }
                 }
 

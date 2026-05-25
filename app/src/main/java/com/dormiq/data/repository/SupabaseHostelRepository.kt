@@ -56,6 +56,18 @@ class SupabaseHostelRepository @Inject constructor(
         }
     }
 
+    override fun getHostelsByOwner(ownerId: String): Flow<List<Hostel>> = flow {
+        try {
+            val response = supabase.postgrest["hostels"]
+                .select { filter { eq("owner_id", ownerId) } }
+                .decodeList<Hostel>()
+            emit(response)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(emptyList())
+        }
+    }
+
     override suspend fun createHostel(hostel: Hostel): Result<Hostel> {
         return try {
             val newHostel = supabase.postgrest["hostels"]

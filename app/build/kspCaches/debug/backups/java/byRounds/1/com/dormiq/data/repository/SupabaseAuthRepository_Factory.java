@@ -1,5 +1,6 @@
 package com.dormiq.data.repository;
 
+import com.dormiq.data.manager.ActiveHostelManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -25,21 +26,27 @@ import javax.inject.Provider;
 public final class SupabaseAuthRepository_Factory implements Factory<SupabaseAuthRepository> {
   private final Provider<SupabaseClient> supabaseClientProvider;
 
-  public SupabaseAuthRepository_Factory(Provider<SupabaseClient> supabaseClientProvider) {
+  private final Provider<ActiveHostelManager> activeHostelManagerProvider;
+
+  public SupabaseAuthRepository_Factory(Provider<SupabaseClient> supabaseClientProvider,
+      Provider<ActiveHostelManager> activeHostelManagerProvider) {
     this.supabaseClientProvider = supabaseClientProvider;
+    this.activeHostelManagerProvider = activeHostelManagerProvider;
   }
 
   @Override
   public SupabaseAuthRepository get() {
-    return newInstance(supabaseClientProvider.get());
+    return newInstance(supabaseClientProvider.get(), activeHostelManagerProvider.get());
   }
 
   public static SupabaseAuthRepository_Factory create(
-      Provider<SupabaseClient> supabaseClientProvider) {
-    return new SupabaseAuthRepository_Factory(supabaseClientProvider);
+      Provider<SupabaseClient> supabaseClientProvider,
+      Provider<ActiveHostelManager> activeHostelManagerProvider) {
+    return new SupabaseAuthRepository_Factory(supabaseClientProvider, activeHostelManagerProvider);
   }
 
-  public static SupabaseAuthRepository newInstance(SupabaseClient supabaseClient) {
-    return new SupabaseAuthRepository(supabaseClient);
+  public static SupabaseAuthRepository newInstance(SupabaseClient supabaseClient,
+      ActiveHostelManager activeHostelManager) {
+    return new SupabaseAuthRepository(supabaseClient, activeHostelManager);
   }
 }

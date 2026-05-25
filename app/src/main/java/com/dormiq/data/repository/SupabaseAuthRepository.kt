@@ -15,12 +15,14 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.json.*
+import com.dormiq.data.manager.ActiveHostelManager
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
 @Singleton
 class SupabaseAuthRepository @Inject constructor(
-    private val supabaseClient: SupabaseClient
+    private val supabaseClient: SupabaseClient,
+    private val activeHostelManager: ActiveHostelManager
 ) : AuthRepository {
 
     override val sessionStatus = supabaseClient.auth.sessionStatus
@@ -55,7 +57,15 @@ class SupabaseAuthRepository @Inject constructor(
                     
                     if (hostels.isNotEmpty()) {
                         role = UserRole.OWNER
-                        hostelId = hostels.first().id
+                        val activeSavedId = activeHostelManager.getActiveHostelId()
+                        val isSavedIdValid = hostels.any { it.id == activeSavedId }
+                        hostelId = if (isSavedIdValid) {
+                            activeSavedId
+                        } else {
+                            val defaultId = hostels.first().id
+                            activeHostelManager.setActiveHostelId(defaultId)
+                            defaultId
+                        }
                         
                         // Proactively sync profiles table
                         try {
@@ -248,24 +258,56 @@ class SupabaseAuthRepository @Inject constructor(
         return try {
             val userId = supabaseClient.auth.currentUserOrNull()?.id ?: throw Exception("Not logged in")
             
-            // 1. Update profiles table
+            // 1. Update active hostel manager
+            activeHostelManager.setActiveHostelId(hostelId)
+
+            // 2. Update profiles table
             supabaseClient.from("profiles").update(
                 mapOf("hostel_id" to hostelId)
             ) {
                 filter { eq("id", userId) }
             }
             
-            // 2. Update auth metadata for RLS redundancy
+            // 3. Update auth metadata for RLS redundancy
             supabaseClient.auth.updateUser {
                 data = buildJsonObject {
                     put("hostel_id", hostelId)
                 }
             }
             
-            // 3. Update local cache
+            // 4. Update local cache
             currentUser = currentUser?.copy(hostelId = hostelId)
             
             println("DEBUG: Registration completed and persisted for hostel: $hostelId")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun switchActiveHostel(hostelId: String): Result<Unit> {
+        return try {
+            val userId = supabaseClient.auth.currentUserOrNull()?.id ?: throw Exception("Not logged in")
+            
+            // 1. Update active hostel manager
+            activeHostelManager.setActiveHostelId(hostelId)
+
+            // 2. Update profiles table
+            try {
+                supabaseClient.from("profiles").update(
+                    mapOf("hostel_id" to hostelId)
+                ) {
+                    filter { eq("id", userId) }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            
+            // 3. Update local cache
+            currentUser = currentUser?.copy(hostelId = hostelId)
+            
+            println("DEBUG: Active hostel switched to: $hostelId")
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
