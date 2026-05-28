@@ -25,6 +25,8 @@ interface HostelRepository {
     suspend fun createHostel(hostel: Hostel): Result<Hostel>
     suspend fun updateHostel(hostel: Hostel): Result<Unit>
     fun getStats(hostelId: String): Flow<OccupancyStats>
+    suspend fun getHostelStatsDirect(hostelId: String): Pair<Int, Int>
+    suspend fun deleteHostel(hostelId: String): Result<Unit>
 }
 
 interface FloorRepository {

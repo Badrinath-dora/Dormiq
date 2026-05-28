@@ -67,16 +67,7 @@ class SupabaseAuthRepository @Inject constructor(
                             defaultId
                         }
                         
-                        // Proactively sync profiles table
-                        try {
-                            supabaseClient.from("profiles").update(
-                                mapOf("hostel_id" to hostelId)
-                            ) {
-                                filter { eq("id", userId) }
-                            }
-                        } catch (e: Exception) {
-                            // Non-blocking
-                        }
+                        // Active hostel ID stored in local manager
                     }
 
                     // 3. Check profiles table (Explicitly set during registration)
@@ -275,26 +266,15 @@ class SupabaseAuthRepository @Inject constructor(
             
             // 1. Update active hostel manager
             activeHostelManager.setActiveHostelId(hostelId)
-
-            // 2. Update profiles table
-            try {
-                supabaseClient.from("profiles").update(
-                    mapOf("hostel_id" to hostelId)
-                ) {
-                    filter { eq("id", userId) }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
             
-            // 3. Update auth metadata for RLS redundancy
+            // 2. Update auth metadata for RLS redundancy
             supabaseClient.auth.updateUser {
                 data = buildJsonObject {
                     put("hostel_id", hostelId)
                 }
             }
             
-            // 4. Update local cache
+            // 3. Update local cache
             currentUser = currentUser?.copy(hostelId = hostelId)
             
             println("DEBUG: Registration completed and persisted for hostel: $hostelId")
@@ -311,19 +291,8 @@ class SupabaseAuthRepository @Inject constructor(
             
             // 1. Update active hostel manager
             activeHostelManager.setActiveHostelId(hostelId)
-
-            // 2. Update profiles table
-            try {
-                supabaseClient.from("profiles").update(
-                    mapOf("hostel_id" to hostelId)
-                ) {
-                    filter { eq("id", userId) }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
             
-            // 3. Update local cache
+            // 2. Update local cache
             currentUser = currentUser?.copy(hostelId = hostelId)
             
             println("DEBUG: Active hostel switched to: $hostelId")

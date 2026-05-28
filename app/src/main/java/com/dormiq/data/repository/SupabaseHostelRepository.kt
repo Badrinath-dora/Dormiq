@@ -146,4 +146,39 @@ class SupabaseHostelRepository @Inject constructor(
             kotlinx.coroutines.delay(4000) // Poll every 4 seconds
         }
     }
+
+    override suspend fun getHostelStatsDirect(hostelId: String): Pair<Int, Int> {
+        return try {
+            val floors = supabase.postgrest["floors"]
+                .select { 
+                    filter { eq("hostel_id", hostelId) }
+                }
+                .decodeList<com.dormiq.domain.model.Floor>()
+                
+            val rooms = supabase.postgrest["rooms"]
+                .select { 
+                    filter { eq("hostel_id", hostelId) }
+                }
+                .decodeList<com.dormiq.domain.model.Room>()
+                
+            Pair(floors.size, rooms.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Pair(0, 0)
+        }
+    }
+
+    override suspend fun deleteHostel(hostelId: String): Result<Unit> {
+        return try {
+            supabase.postgrest["hostels"].delete {
+                filter {
+                    eq("id", hostelId)
+                }
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

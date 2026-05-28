@@ -1,5 +1,6 @@
 package com.dormiq;
 
+import com.dormiq.data.manager.NetworkConnectivityObserver;
 import com.dormiq.domain.repository.AuthRepository;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
@@ -24,22 +25,34 @@ import javax.inject.Provider;
 public final class MainActivity_MembersInjector implements MembersInjector<MainActivity> {
   private final Provider<AuthRepository> authRepositoryProvider;
 
-  public MainActivity_MembersInjector(Provider<AuthRepository> authRepositoryProvider) {
+  private final Provider<NetworkConnectivityObserver> connectivityObserverProvider;
+
+  public MainActivity_MembersInjector(Provider<AuthRepository> authRepositoryProvider,
+      Provider<NetworkConnectivityObserver> connectivityObserverProvider) {
     this.authRepositoryProvider = authRepositoryProvider;
+    this.connectivityObserverProvider = connectivityObserverProvider;
   }
 
   public static MembersInjector<MainActivity> create(
-      Provider<AuthRepository> authRepositoryProvider) {
-    return new MainActivity_MembersInjector(authRepositoryProvider);
+      Provider<AuthRepository> authRepositoryProvider,
+      Provider<NetworkConnectivityObserver> connectivityObserverProvider) {
+    return new MainActivity_MembersInjector(authRepositoryProvider, connectivityObserverProvider);
   }
 
   @Override
   public void injectMembers(MainActivity instance) {
     injectAuthRepository(instance, authRepositoryProvider.get());
+    injectConnectivityObserver(instance, connectivityObserverProvider.get());
   }
 
   @InjectedFieldSignature("com.dormiq.MainActivity.authRepository")
   public static void injectAuthRepository(MainActivity instance, AuthRepository authRepository) {
     instance.authRepository = authRepository;
+  }
+
+  @InjectedFieldSignature("com.dormiq.MainActivity.connectivityObserver")
+  public static void injectConnectivityObserver(MainActivity instance,
+      NetworkConnectivityObserver connectivityObserver) {
+    instance.connectivityObserver = connectivityObserver;
   }
 }

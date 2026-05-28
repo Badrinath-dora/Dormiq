@@ -41,7 +41,49 @@ class ManagePropertiesViewModel @Inject constructor(
             val ownerId = authRepository.getCurrentUser()?.id
             if (ownerId != null) {
                 hostelRepository.getHostelsByOwner(ownerId).collect { list ->
-                    _hostels.value = list
+                    val updatedList = list.map { hostel ->
+                        try {
+                            val statsPair = hostelRepository.getHostelStatsDirect(hostel.id)
+                            hostel.copy(
+                                totalFloors = statsPair.first,
+                                totalRooms = statsPair.second
+                            )
+                        } catch (e: Exception) {
+                            hostel
+                        }
+                    }
+                    
+                    val groupedHostels = updatedList.groupBy { it.name.trim().lowercase() }
+                    val filteredList = mutableListOf<Hostel>()
+                    
+                    groupedHostels.forEach { (_, group) ->
+                        if (group.size > 1) {
+                            val realHostel = group.find { it.totalFloors > 0 || it.totalRooms > 0 || it.id == _activeHostelId.value }
+                            if (realHostel != null) {
+                                group.forEach { hostel ->
+                                    if (hostel.id != realHostel.id && hostel.totalFloors == 0 && hostel.totalRooms == 0) {
+                                        viewModelScope.launch {
+                                            hostelRepository.deleteHostel(hostel.id)
+                                        }
+                                    } else {
+                                        filteredList.add(hostel)
+                                    }
+                                }
+                            } else {
+                                val firstHostel = group.first()
+                                filteredList.add(firstHostel)
+                                group.drop(1).forEach { hostel ->
+                                    viewModelScope.launch {
+                                        hostelRepository.deleteHostel(hostel.id)
+                                    }
+                                }
+                            }
+                        } else {
+                            filteredList.addAll(group)
+                        }
+                    }
+                    
+                    _hostels.value = filteredList
                     _isLoading.value = false
                 }
             } else {
