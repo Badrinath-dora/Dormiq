@@ -14,6 +14,7 @@ import com.dormiq.ui.viewmodel.PaymentViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.PropertyViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.SetupViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.TenantViewModel_HiltModules;
+import com.dormiq.util.PdfReceiptEntryPoint;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -148,6 +149,7 @@ public final class DormiqApplication_HiltComponents {
   )
   @Singleton
   public abstract static class SingletonC implements DormiqApplication_GeneratedInjector,
+      PdfReceiptEntryPoint,
       FragmentGetContextFix.FragmentGetContextFixEntryPoint,
       HiltWrapper_ActivityRetainedComponentManager_ActivityRetainedComponentBuilderEntryPoint,
       ServiceComponentManager.ServiceComponentBuilderEntryPoint,

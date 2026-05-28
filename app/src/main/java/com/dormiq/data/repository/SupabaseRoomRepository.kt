@@ -18,63 +18,69 @@ class SupabaseRoomRepository @Inject constructor(
     private val _rooms = MutableStateFlow<List<Room>>(emptyList())
 
     override fun getRooms(hostelId: String): Flow<List<Room>> = flow {
-        try {
-            val response = supabase.postgrest["rooms"]
-                .select { filter { eq("hostel_id", hostelId) } }
-                .decodeList<Room>()
-                
-            val beds = try { supabase.postgrest["beds"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Bed>() } catch (e: Exception) { emptyList() }
-            val tenants = try { supabase.postgrest["tenants"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Tenant>() } catch (e: Exception) { emptyList() }
-            val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
-            
-            val updatedRooms = response.map { room ->
-                val roomBeds = beds.filter { it.roomId == room.id }
-                room.copy(totalBeds = roomBeds.size, occupiedBeds = roomBeds.count { activeBedIds.contains(it.id) })
-            }
-            
-            _rooms.value = updatedRooms
-            emit(updatedRooms)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_rooms.value.filter { it.hostelId == hostelId })
-        }
-    }
-
-    override fun getRoomsByFloor(floorId: String): Flow<List<Room>> = flow {
-        try {
-            val response = supabase.postgrest["rooms"]
-                .select { filter { eq("floor_id", floorId) } }
-                .decodeList<Room>()
-            
-            val hostelId = response.firstOrNull()?.hostelId
-            val updatedRooms = if (hostelId != null) {
+        while (true) {
+            try {
+                val response = supabase.postgrest["rooms"]
+                    .select { filter { eq("hostel_id", hostelId) } }
+                    .decodeList<Room>()
+                    
                 val beds = try { supabase.postgrest["beds"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Bed>() } catch (e: Exception) { emptyList() }
                 val tenants = try { supabase.postgrest["tenants"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Tenant>() } catch (e: Exception) { emptyList() }
                 val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
                 
-                val floor = try {
-                    supabase.postgrest["floors"].select { filter { eq("id", floorId) } }.decodeSingleOrNull<com.dormiq.domain.model.Floor>()
-                } catch (e: Exception) { null }
-                
-                response.map { room ->
+                val updatedRooms = response.map { room ->
                     val roomBeds = beds.filter { it.roomId == room.id }
-                    room.copy(
-                        totalBeds = roomBeds.size, 
-                        occupiedBeds = roomBeds.count { activeBedIds.contains(it.id) },
-                        floorName = floor?.name
-                    )
+                    room.copy(totalBeds = roomBeds.size, occupiedBeds = roomBeds.count { activeBedIds.contains(it.id) })
                 }
-            } else response
-            
-            // Merge with local cache
-            val newMap = _rooms.value.associateBy { it.id }.toMutableMap()
-            updatedRooms.forEach { newMap[it.id] = it }
-            _rooms.value = newMap.values.toList()
-            
-            emit(updatedRooms)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_rooms.value.filter { it.floorId == floorId })
+                
+                _rooms.value = updatedRooms
+                emit(updatedRooms)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_rooms.value.filter { it.hostelId == hostelId })
+            }
+            kotlinx.coroutines.delay(4000)
+        }
+    }
+
+    override fun getRoomsByFloor(floorId: String): Flow<List<Room>> = flow {
+        while (true) {
+            try {
+                val response = supabase.postgrest["rooms"]
+                    .select { filter { eq("floor_id", floorId) } }
+                    .decodeList<Room>()
+                
+                val hostelId = response.firstOrNull()?.hostelId
+                val updatedRooms = if (hostelId != null) {
+                    val beds = try { supabase.postgrest["beds"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Bed>() } catch (e: Exception) { emptyList() }
+                    val tenants = try { supabase.postgrest["tenants"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Tenant>() } catch (e: Exception) { emptyList() }
+                    val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
+                    
+                    val floor = try {
+                        supabase.postgrest["floors"].select { filter { eq("id", floorId) } }.decodeSingleOrNull<com.dormiq.domain.model.Floor>()
+                    } catch (e: Exception) { null }
+                    
+                    response.map { room ->
+                        val roomBeds = beds.filter { it.roomId == room.id }
+                        room.copy(
+                            totalBeds = roomBeds.size, 
+                            occupiedBeds = roomBeds.count { activeBedIds.contains(it.id) },
+                            floorName = floor?.name
+                        )
+                    }
+                } else response
+                
+                // Merge with local cache
+                val newMap = _rooms.value.associateBy { it.id }.toMutableMap()
+                updatedRooms.forEach { newMap[it.id] = it }
+                _rooms.value = newMap.values.toList()
+                
+                emit(updatedRooms)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_rooms.value.filter { it.floorId == floorId })
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 

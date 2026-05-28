@@ -30,11 +30,14 @@ class IssueViewModel @Inject constructor(
     private var lastIsOwner: Boolean = false
     private var lastTenantId: String? = null
 
+    private var issuesJob: kotlinx.coroutines.Job? = null
+
     fun loadIssues(hostelId: String, isOwner: Boolean, tenantId: String? = null) {
         lastHostelId = hostelId
         lastIsOwner = isOwner
         lastTenantId = tenantId
-        viewModelScope.launch {
+        issuesJob?.cancel()
+        issuesJob = viewModelScope.launch {
             _isLoading.value = true
             if (isOwner) {
                 repository.getIssues(hostelId).collect {
@@ -50,13 +53,27 @@ class IssueViewModel @Inject constructor(
         }
     }
 
+    private var issueDetailJob: kotlinx.coroutines.Job? = null
+
     fun loadIssue(issueId: String) {
-        viewModelScope.launch {
+        issueDetailJob?.cancel()
+        issueDetailJob = viewModelScope.launch {
             _isLoading.value = true
-            val issue = repository.getIssue(issueId)
-            _selectedIssue.value = issue
             loadComments(issueId)
-            _isLoading.value = false
+            
+            // Poll for issue details to catch status/note updates in real time
+            while (true) {
+                try {
+                    val issue = repository.getIssue(issueId)
+                    _selectedIssue.value = issue
+                } catch (e: Exception) {
+                    if (e !is kotlinx.coroutines.CancellationException) {
+                        e.printStackTrace()
+                    }
+                }
+                _isLoading.value = false
+                kotlinx.coroutines.delay(4000)
+            }
         }
     }
 
@@ -65,11 +82,8 @@ class IssueViewModel @Inject constructor(
     fun loadComments(issueId: String) {
         pollingJob?.cancel()
         pollingJob = viewModelScope.launch {
-            while (true) {
-                repository.getComments(issueId).collect {
-                    _comments.value = it.sortedBy { c -> c.createdAt }
-                }
-                kotlinx.coroutines.delay(5000) // Poll every 5 seconds
+            repository.getComments(issueId).collect {
+                _comments.value = it.sortedBy { c -> c.createdAt }
             }
         }
     }
@@ -109,5 +123,12 @@ class IssueViewModel @Inject constructor(
             _isLoading.value = false
             onComplete(result.isSuccess)
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        issuesJob?.cancel()
+        issueDetailJob?.cancel()
+        pollingJob?.cancel()
     }
 }

@@ -18,64 +18,67 @@ class SupabaseFloorRepository @Inject constructor(
     private val _floors = MutableStateFlow<List<Floor>>(emptyList())
 
     override fun getFloors(hostelId: String): Flow<List<Floor>> = flow {
-        try {
-            val response = supabase.postgrest["floors"]
-                .select { filter { eq("hostel_id", hostelId) } }
-                .decodeList<Floor>()
+        while (true) {
+            try {
+                val response = supabase.postgrest["floors"]
+                    .select { filter { eq("hostel_id", hostelId) } }
+                    .decodeList<Floor>()
 
-            // Fetch rooms and beds for the hostel to calculate stats dynamically
-            val rooms = try {
-                supabase.postgrest["rooms"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<com.dormiq.domain.model.Room>()
-            } catch (e: Exception) { emptyList() }
-            
-            val beds = try {
-                supabase.postgrest["beds"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<com.dormiq.domain.model.Bed>()
-            } catch (e: Exception) { emptyList() }
-            
-            // Fetch tenants to ensure accurate occupancy counts
-            val tenants = try {
-                supabase.postgrest["tenants"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<com.dormiq.domain.model.Tenant>()
-            } catch (e: Exception) { emptyList() }
-            
-            val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
-
-            val updatedFloors = response.sortedBy { it.number }.mapIndexed { index, floor ->
-                val floorRooms = rooms.filter { room ->
-                    val belongsToThisFloor = when {
-                        index == 0 -> {
-                            room.roomNumber.startsWith("G", ignoreCase = true) ||
-                            room.roomNumber.startsWith("0") ||
-                            (room.roomNumber.firstOrNull()?.isDigit() == true && 
-                             response.indices.none { fIdx -> fIdx > 0 && room.roomNumber.startsWith(fIdx.toString()) })
-                        }
-                        else -> {
-                            room.roomNumber.startsWith(index.toString()) ||
-                            room.roomNumber.startsWith("F$index", ignoreCase = true) ||
-                            room.roomNumber.startsWith("Floor $index", ignoreCase = true)
-                        }
-                    }
-                    belongsToThisFloor
-                }
-                val floorBeds = beds.filter { bed -> floorRooms.any { room -> room.id == bed.roomId } }
+                // Fetch rooms and beds for the hostel to calculate stats dynamically
+                val rooms = try {
+                    supabase.postgrest["rooms"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<com.dormiq.domain.model.Room>()
+                } catch (e: Exception) { emptyList() }
                 
-                floor.copy(
-                    totalRooms = floorRooms.size,
-                    totalBeds = floorBeds.size,
-                    occupiedBeds = floorBeds.count { activeBedIds.contains(it.id) }
-                )
-            }
+                val beds = try {
+                    supabase.postgrest["beds"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<com.dormiq.domain.model.Bed>()
+                } catch (e: Exception) { emptyList() }
+                
+                // Fetch tenants to ensure accurate occupancy counts
+                val tenants = try {
+                    supabase.postgrest["tenants"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<com.dormiq.domain.model.Tenant>()
+                } catch (e: Exception) { emptyList() }
+                
+                val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
 
-            _floors.value = updatedFloors
-            emit(updatedFloors)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_floors.value.filter { it.hostelId == hostelId })
+                val updatedFloors = response.sortedBy { it.number }.mapIndexed { index, floor ->
+                    val floorRooms = rooms.filter { room ->
+                        val belongsToThisFloor = when {
+                            index == 0 -> {
+                                room.roomNumber.startsWith("G", ignoreCase = true) ||
+                                room.roomNumber.startsWith("0") ||
+                                (room.roomNumber.firstOrNull()?.isDigit() == true && 
+                                 response.indices.none { fIdx -> fIdx > 0 && room.roomNumber.startsWith(fIdx.toString()) })
+                            }
+                            else -> {
+                                room.roomNumber.startsWith(index.toString()) ||
+                                room.roomNumber.startsWith("F$index", ignoreCase = true) ||
+                                room.roomNumber.startsWith("Floor $index", ignoreCase = true)
+                            }
+                        }
+                        belongsToThisFloor
+                    }
+                    val floorBeds = beds.filter { bed -> floorRooms.any { room -> room.id == bed.roomId } }
+                    
+                    floor.copy(
+                        totalRooms = floorRooms.size,
+                        totalBeds = floorBeds.size,
+                        occupiedBeds = floorBeds.count { activeBedIds.contains(it.id) }
+                    )
+                }
+
+                _floors.value = updatedFloors
+                emit(updatedFloors)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_floors.value.filter { it.hostelId == hostelId })
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 

@@ -18,36 +18,42 @@ class SupabaseBedRepository @Inject constructor(
     private val _beds = MutableStateFlow<List<Bed>>(emptyList())
 
     override fun getBeds(roomId: String): Flow<List<Bed>> = flow {
-        try {
-            val response = supabase.postgrest["beds"]
-                .select { filter { eq("room_id", roomId) } }
-                .decodeList<Bed>()
-            
-            val newMap = _beds.value.associateBy { it.id }.toMutableMap()
-            response.forEach { newMap[it.id] = it }
-            _beds.value = newMap.values.toList()
-            
-            emit(response)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_beds.value.filter { it.roomId == roomId })
+        while (true) {
+            try {
+                val response = supabase.postgrest["beds"]
+                    .select { filter { eq("room_id", roomId) } }
+                    .decodeList<Bed>()
+                
+                val newMap = _beds.value.associateBy { it.id }.toMutableMap()
+                response.forEach { newMap[it.id] = it }
+                _beds.value = newMap.values.toList()
+                
+                emit(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_beds.value.filter { it.roomId == roomId })
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 
     override fun getVacantBeds(roomId: String): Flow<List<Bed>> = flow {
-        try {
-            val response = supabase.postgrest["beds"]
-                .select { 
-                    filter { 
-                        eq("room_id", roomId)
-                        eq("status", com.dormiq.domain.model.BedStatus.VACANT)
-                    } 
-                }
-                .decodeList<Bed>()
-            emit(response)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_beds.value.filter { it.roomId == roomId && it.status == com.dormiq.domain.model.BedStatus.VACANT })
+        while (true) {
+            try {
+                val response = supabase.postgrest["beds"]
+                    .select { 
+                        filter { 
+                            eq("room_id", roomId)
+                            eq("status", com.dormiq.domain.model.BedStatus.VACANT)
+                        } 
+                    }
+                    .decodeList<Bed>()
+                emit(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_beds.value.filter { it.roomId == roomId && it.status == com.dormiq.domain.model.BedStatus.VACANT })
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 

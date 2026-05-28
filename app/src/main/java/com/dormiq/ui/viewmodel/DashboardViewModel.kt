@@ -65,6 +65,10 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    private var layoutJob: kotlinx.coroutines.Job? = null
+    private var statsJob: kotlinx.coroutines.Job? = null
+    private var issuesJob: kotlinx.coroutines.Job? = null
+
     fun loadDashboardData() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -73,25 +77,9 @@ class DashboardViewModel @Inject constructor(
                 val hostelData = hostelRepository.getHostel(activeHostelId)
                 _hostel.value = hostelData
                 if (hostelData != null) {
-                    loadLayout(hostelData.id)
-                    // Fetch recent issues
-                    try {
-                        val recentIssues = supabase.postgrest["issues"]
-                            .select {
-                                filter { eq("hostel_id", hostelData.id) }
-                            }
-                            .decodeList<Issue>()
-                            .sortedByDescending { it.createdAt }
-                            .take(3)
-                        _issues.value = recentIssues
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
-                    hostelRepository.getStats(hostelData.id).collect { newStats ->
-                        _stats.value = newStats
-                        _isLoading.value = false
-                    }
+                    startLayoutPolling(hostelData.id)
+                    startIssuesPolling(hostelData.id)
+                    startStatsPolling(hostelData.id)
                 } else {
                     _isLoading.value = false
                 }
@@ -103,25 +91,9 @@ class DashboardViewModel @Inject constructor(
                     _hostel.value = hostelData
                     if (hostelData != null) {
                         activeHostelManager.setActiveHostelId(hostelData.id)
-                        loadLayout(hostelData.id)
-                        // Fetch recent issues
-                        try {
-                            val recentIssues = supabase.postgrest["issues"]
-                                .select {
-                                    filter { eq("hostel_id", hostelData.id) }
-                                }
-                                .decodeList<Issue>()
-                                .sortedByDescending { it.createdAt }
-                                .take(3)
-                            _issues.value = recentIssues
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-
-                        hostelRepository.getStats(hostelData.id).collect { newStats ->
-                            _stats.value = newStats
-                            _isLoading.value = false
-                        }
+                        startLayoutPolling(hostelData.id)
+                        startIssuesPolling(hostelData.id)
+                        startStatsPolling(hostelData.id)
                     } else {
                         _isLoading.value = false
                     }
@@ -132,77 +104,119 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun loadLayout(hostelId: String) {
-        viewModelScope.launch {
-            try {
-                // 1. Fetch floors
-                val floors = supabase.postgrest["floors"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<Floor>()
-                    .sortedBy { it.number }
+    private fun startLayoutPolling(hostelId: String) {
+        layoutJob?.cancel()
+        layoutJob = viewModelScope.launch {
+            while (true) {
+                try {
+                    // 1. Fetch floors
+                    val floors = supabase.postgrest["floors"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<Floor>()
+                        .sortedBy { it.number }
 
-                // 2. Fetch rooms
-                val rooms = supabase.postgrest["rooms"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<Room>()
-                    .sortedBy { it.roomNumber }
+                    // 2. Fetch rooms
+                    val rooms = supabase.postgrest["rooms"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<Room>()
+                        .sortedBy { it.roomNumber }
 
-                // 3. Fetch beds
-                val beds = supabase.postgrest["beds"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<Bed>()
-                    .sortedBy { it.label }
+                    // 3. Fetch beds
+                    val beds = supabase.postgrest["beds"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<Bed>()
+                        .sortedBy { it.label }
 
-                // 4. Fetch tenants
-                val tenants = supabase.postgrest["tenants"]
-                    .select { filter { eq("hostel_id", hostelId) } }
-                    .decodeList<Tenant>()
+                    // 4. Fetch tenants
+                    val tenants = supabase.postgrest["tenants"]
+                        .select { filter { eq("hostel_id", hostelId) } }
+                        .decodeList<Tenant>()
 
-                val layout = floors.mapIndexed { index, floor ->
-                    val floorRooms = rooms.filter { room ->
-                        // Dynamically match room to floor by number prefix to correct any database misalignment
-                        val belongsToThisFloor = when {
-                            // Match Ground Floor / floor index 0
-                            index == 0 -> {
-                                room.roomNumber.startsWith("G", ignoreCase = true) ||
-                                room.roomNumber.startsWith("0") ||
-                                // if it starts with a number, but doesn't start with any other floor's index
-                                (room.roomNumber.firstOrNull()?.isDigit() == true && 
-                                 floors.indices.none { fIdx -> fIdx > 0 && room.roomNumber.startsWith(fIdx.toString()) })
+                    val layout = floors.mapIndexed { index, floor ->
+                        val floorRooms = rooms.filter { room ->
+                            val belongsToThisFloor = when {
+                                index == 0 -> {
+                                    room.roomNumber.startsWith("G", ignoreCase = true) ||
+                                    room.roomNumber.startsWith("0") ||
+                                    (room.roomNumber.firstOrNull()?.isDigit() == true && 
+                                     floors.indices.none { fIdx -> fIdx > 0 && room.roomNumber.startsWith(fIdx.toString()) })
+                                }
+                                else -> {
+                                    room.roomNumber.startsWith(index.toString()) ||
+                                    room.roomNumber.startsWith("F$index", ignoreCase = true) ||
+                                    room.roomNumber.startsWith("Floor $index", ignoreCase = true)
+                                }
                             }
-                            // Match other floors by index (e.g. First floor index 1 matches "101", "102")
-                            else -> {
-                                room.roomNumber.startsWith(index.toString()) ||
-                                room.roomNumber.startsWith("F$index", ignoreCase = true) ||
-                                room.roomNumber.startsWith("Floor $index", ignoreCase = true)
+                            belongsToThisFloor
+                        }.map { room ->
+                            val roomBeds = beds.filter { it.roomId == room.id }.map { bed ->
+                                val tenant = tenants.find { it.assignedBedId == bed.id && it.status == TenantStatus.ACTIVE }
+                                val isOccupied = tenant != null || !bed.currentTenantId.isNullOrEmpty()
+                                val finalStatus = if (isOccupied) BedStatus.OCCUPIED else (bed.status ?: BedStatus.VACANT)
+                                val finalBed = bed.copy(status = finalStatus)
+                                
+                                BedWithTenant(
+                                    bed = finalBed,
+                                    tenantName = tenant?.name ?: bed.currentTenantName,
+                                    tenantPhone = tenant?.phone,
+                                    tenantEmail = tenant?.email,
+                                    tenantAvatarUrl = tenant?.avatarUrl,
+                                    tenantId = tenant?.id
+                                )
                             }
+                            RoomWithBeds(room, roomBeds)
                         }
-                        belongsToThisFloor
-                    }.map { room ->
-                        val roomBeds = beds.filter { it.roomId == room.id }.map { bed ->
-                            val tenant = tenants.find { it.assignedBedId == bed.id && it.status == TenantStatus.ACTIVE }
-                            val isOccupied = tenant != null || !bed.currentTenantId.isNullOrEmpty()
-                            val finalStatus = if (isOccupied) BedStatus.OCCUPIED else (bed.status ?: BedStatus.VACANT)
-                            val finalBed = bed.copy(status = finalStatus)
-                            
-                            BedWithTenant(
-                                bed = finalBed,
-                                tenantName = tenant?.name ?: bed.currentTenantName,
-                                tenantPhone = tenant?.phone,
-                                tenantEmail = tenant?.email,
-                                tenantAvatarUrl = tenant?.avatarUrl,
-                                tenantId = tenant?.id
-                            )
-                        }
-                        RoomWithBeds(room, roomBeds)
+                        FloorWithRooms(floor, floorRooms)
                     }
-                    FloorWithRooms(floor, floorRooms)
-                }
 
-                _hostelLayout.value = layout
-            } catch (e: Exception) {
-                e.printStackTrace()
+                    _hostelLayout.value = layout
+                } catch (e: Exception) {
+                    if (e !is kotlinx.coroutines.CancellationException) {
+                        e.printStackTrace()
+                    }
+                }
+                kotlinx.coroutines.delay(4000)
             }
         }
+    }
+
+    private fun startIssuesPolling(hostelId: String) {
+        issuesJob?.cancel()
+        issuesJob = viewModelScope.launch {
+            while (true) {
+                try {
+                    val recentIssues = supabase.postgrest["issues"]
+                        .select {
+                            filter { eq("hostel_id", hostelId) }
+                        }
+                        .decodeList<Issue>()
+                        .sortedByDescending { it.createdAt }
+                        .take(3)
+                    _issues.value = recentIssues
+                } catch (e: Exception) {
+                    if (e !is kotlinx.coroutines.CancellationException) {
+                        e.printStackTrace()
+                    }
+                }
+                kotlinx.coroutines.delay(4000)
+            }
+        }
+    }
+
+    private fun startStatsPolling(hostelId: String) {
+        statsJob?.cancel()
+        statsJob = viewModelScope.launch {
+            hostelRepository.getStats(hostelId).collect { newStats ->
+                _stats.value = newStats
+                _isLoading.value = false
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        layoutJob?.cancel()
+        statsJob?.cancel()
+        issuesJob?.cancel()
     }
 }

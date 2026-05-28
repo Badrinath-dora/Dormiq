@@ -28,6 +28,9 @@ import com.dormiq.ui.theme.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dormiq.ui.viewmodel.DashboardViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 
 @Composable
 fun OwnerDashboardScreen(
@@ -52,6 +55,19 @@ fun OwnerDashboardScreen(
     val layout by viewModel.hostelLayout.collectAsStateWithLifecycle()
     var selectedFloorId by remember { mutableStateOf("all") }
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadDashboardData()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     val greeting = remember {
         val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)

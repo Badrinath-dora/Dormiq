@@ -144,17 +144,32 @@ class SupabaseAuthRepository @Inject constructor(
             // Authorization Check: Only restrict Tenants whose numbers must be pre-registered.
             // Bypasses check entirely for Owners so they can register freely.
             if (role != UserRole.OWNER) {
+                val last10 = cleanPhone.takeLast(10)
                 // Check if they are a registered tenant
                 val tenant = supabaseClient.from("tenants")
                     .select(columns = Columns.list("id")) {
-                        filter { eq("phone", cleanPhone) }
+                        filter {
+                            or {
+                                eq("phone", cleanPhone)
+                                eq("phone", last10)
+                                eq("phone", "+91$last10")
+                                eq("phone", "91$last10")
+                            }
+                        }
                     }.decodeSingleOrNull<Tenant>()
                 
                 if (tenant == null) {
                     // Check if they are already an owner in the hostels table
                     val hostel = supabaseClient.from("hostels")
                         .select(columns = Columns.list("id")) {
-                            filter { eq("phone", cleanPhone) }
+                            filter {
+                                or {
+                                    eq("phone", cleanPhone)
+                                    eq("phone", last10)
+                                    eq("phone", "+91$last10")
+                                    eq("phone", "91$last10")
+                                }
+                            }
                         }.decodeSingleOrNull<Hostel>()
                     
                     if (hostel == null) {
@@ -262,10 +277,14 @@ class SupabaseAuthRepository @Inject constructor(
             activeHostelManager.setActiveHostelId(hostelId)
 
             // 2. Update profiles table
-            supabaseClient.from("profiles").update(
-                mapOf("hostel_id" to hostelId)
-            ) {
-                filter { eq("id", userId) }
+            try {
+                supabaseClient.from("profiles").update(
+                    mapOf("hostel_id" to hostelId)
+                ) {
+                    filter { eq("id", userId) }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
             
             // 3. Update auth metadata for RLS redundancy

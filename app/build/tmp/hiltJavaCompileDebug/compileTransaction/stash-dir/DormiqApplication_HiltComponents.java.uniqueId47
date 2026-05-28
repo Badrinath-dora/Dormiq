@@ -8,6 +8,7 @@ import com.dormiq.ui.viewmodel.AuthViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.DashboardViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.GalleryFoodViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.IssueViewModel_HiltModules;
+import com.dormiq.ui.viewmodel.ManagePropertiesViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.NoticeViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.PaymentViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.PropertyViewModel_HiltModules;
@@ -175,6 +176,7 @@ public final class DormiqApplication_HiltComponents {
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
           IssueViewModel_HiltModules.KeyModule.class,
+          ManagePropertiesViewModel_HiltModules.KeyModule.class,
           NoticeViewModel_HiltModules.KeyModule.class,
           PaymentViewModel_HiltModules.KeyModule.class,
           PropertyViewModel_HiltModules.KeyModule.class,
@@ -221,6 +223,7 @@ public final class DormiqApplication_HiltComponents {
           GalleryFoodViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           IssueViewModel_HiltModules.BindsModule.class,
+          ManagePropertiesViewModel_HiltModules.BindsModule.class,
           NoticeViewModel_HiltModules.BindsModule.class,
           PaymentViewModel_HiltModules.BindsModule.class,
           PropertyViewModel_HiltModules.BindsModule.class,

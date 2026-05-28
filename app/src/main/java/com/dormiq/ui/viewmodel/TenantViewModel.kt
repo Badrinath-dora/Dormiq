@@ -173,8 +173,10 @@ class TenantViewModel @Inject constructor(
         }
     }
 
+    private var roommatesJob: kotlinx.coroutines.Job? = null
     private fun loadRoommates(hostelId: String, roomNumber: String, currentTenantId: String) {
-        viewModelScope.launch {
+        roommatesJob?.cancel()
+        roommatesJob = viewModelScope.launch {
             tenantRepository.getTenantsByRoom(hostelId, roomNumber).collect { list ->
                 // Filter out the current user from roommates
                 _roommates.value = list.filter { it.id != currentTenantId }
@@ -182,8 +184,10 @@ class TenantViewModel @Inject constructor(
         }
     }
 
+    private var homeDataJob: kotlinx.coroutines.Job? = null
     fun loadHomeData(hostelId: String, tenantId: String) {
-        viewModelScope.launch {
+        homeDataJob?.cancel()
+        homeDataJob = viewModelScope.launch {
             _isLoading.value = true
             combine(
                 issueRepository.getIssuesByTenant(tenantId),

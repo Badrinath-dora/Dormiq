@@ -20,15 +20,18 @@ class SupabaseGalleryRepository @Inject constructor(
     private val _images = MutableStateFlow<List<HostelGallery>>(emptyList())
 
     override fun getGalleryImages(hostelId: String): Flow<List<HostelGallery>> = flow {
-        try {
-            val response = supabase.postgrest["hostel_gallery"]
-                .select { filter { eq("hostel_id", hostelId) } }
-                .decodeList<HostelGallery>()
-            _images.value = response
-            emit(response)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_images.value.filter { it.hostelId == hostelId })
+        while (true) {
+            try {
+                val response = supabase.postgrest["hostel_gallery"]
+                    .select { filter { eq("hostel_id", hostelId) } }
+                    .decodeList<HostelGallery>()
+                _images.value = response
+                emit(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_images.value.filter { it.hostelId == hostelId })
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 

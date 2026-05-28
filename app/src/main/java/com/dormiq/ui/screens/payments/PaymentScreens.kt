@@ -46,8 +46,12 @@ fun TenantPaymentScreen(
     var showPaymentSheet by remember { mutableStateOf(false) }
     var selectedBill by remember { mutableStateOf<RentPayment?>(null) }
 
-    LaunchedEffect(tenant?.id) {
-        tenant?.id?.let { paymentViewModel.loadTenantPayments(it) }
+    LaunchedEffect(tenant?.id, tenant?.phone) {
+        val uId = tenant?.id
+        val phone = tenant?.phone
+        if (uId != null) {
+            paymentViewModel.loadTenantPayments(uId, phone)
+        }
     }
 
     val currentRent = payments.firstOrNull { it.status != PaymentStatus.PAID }
@@ -364,6 +368,7 @@ fun OwnerPaymentManagementScreen(
 
     val pendingPayments = payments.filter { it.status != PaymentStatus.PAID }
     val paidPayments = payments.filter { it.status == PaymentStatus.PAID }
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = DormiqNavy,
@@ -463,7 +468,15 @@ fun OwnerPaymentManagementScreen(
                                     Icon(Icons.Default.Check, null, tint = DormiqGreen, modifier = Modifier.size(20.dp))
                                 }
                                 IconButton(
-                                    onClick = {},
+                                    onClick = {
+                                        paymentViewModel.sendPaymentReminder(payment) {
+                                            android.widget.Toast.makeText(
+                                                context,
+                                                "Payment reminder sent to ${payment.tenantName}!",
+                                                android.widget.Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    },
                                     modifier = Modifier.background(DormiqBlueGlow, CircleShape)
                                 ) {
                                     Icon(Icons.Default.NotificationsActive, null, tint = DormiqBlue, modifier = Modifier.size(20.dp))

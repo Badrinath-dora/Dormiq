@@ -37,9 +37,9 @@ data class Hostel(
     @SerialName("total_floors") val totalFloors: Int = 0,
     @SerialName("total_rooms") val totalRooms: Int = 0,
     @SerialName("total_beds") val totalBeds: Int = 0,
-    val phone: String = "",
-    val email: String = "",
-    @SerialName("created_at") val createdAt: String = ""
+    val phone: String? = "",
+    val email: String? = "",
+    @SerialName("created_at") val createdAt: String? = ""
 )
 
 @Serializable

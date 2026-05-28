@@ -19,14 +19,17 @@ class SupabaseHostelRepository @Inject constructor(
     private val _hostels = MutableStateFlow<List<Hostel>>(emptyList())
 
     override fun getHostels(): Flow<List<Hostel>> = flow {
-        try {
-            val response = supabase.postgrest["hostels"].select().decodeList<Hostel>()
-            _hostels.value = response
-            emit(response)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            // Fallback to cache if error
-            emit(_hostels.value)
+        while (true) {
+            try {
+                val response = supabase.postgrest["hostels"].select().decodeList<Hostel>()
+                _hostels.value = response
+                emit(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Fallback to cache if error
+                emit(_hostels.value)
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 
@@ -57,14 +60,17 @@ class SupabaseHostelRepository @Inject constructor(
     }
 
     override fun getHostelsByOwner(ownerId: String): Flow<List<Hostel>> = flow {
-        try {
-            val response = supabase.postgrest["hostels"]
-                .select { filter { eq("owner_id", ownerId) } }
-                .decodeList<Hostel>()
-            emit(response)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(emptyList())
+        while (true) {
+            try {
+                val response = supabase.postgrest["hostels"]
+                    .select { filter { eq("owner_id", ownerId) } }
+                    .decodeList<Hostel>()
+                emit(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(emptyList())
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 
@@ -101,36 +107,43 @@ class SupabaseHostelRepository @Inject constructor(
     }
 
     override fun getStats(hostelId: String): Flow<OccupancyStats> = flow {
-        try {
-            // Fetch total counts from respective tables
-            val floors = supabase.postgrest["floors"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Floor>()
-            val rooms = supabase.postgrest["rooms"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Room>()
-            val beds = supabase.postgrest["beds"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Bed>()
-            val tenants = supabase.postgrest["tenants"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Tenant>()
-            val issues = supabase.postgrest["issues"].select { 
-                filter { 
-                    eq("hostel_id", hostelId)
-                    eq("status", "open")
-                } 
-            }.decodeList<com.dormiq.domain.model.Issue>()
-
-            val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
-            
-            val stats = OccupancyStats(
-                totalBeds = beds.size,
-                occupiedBeds = beds.count { activeBedIds.contains(it.id) || it.status == "occupied" && activeBedIds.contains(it.id) }.let { activeBedIds.size },
-                vacantBeds = beds.count { !activeBedIds.contains(it.id) && it.status != "blocked" && it.status != "maintenance" },
-                blockedBeds = beds.count { it.status == "blocked" },
-                maintenanceBeds = beds.count { it.status == "maintenance" },
-                totalFloors = floors.size,
-                totalRooms = rooms.size,
-                totalTenants = tenants.size,
-                openIssues = issues.size
-            )
-            emit(stats)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        if (hostelId.isBlank()) {
             emit(OccupancyStats())
+            return@flow
+        }
+        while (true) {
+            try {
+                // Fetch total counts from respective tables
+                val floors = supabase.postgrest["floors"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Floor>()
+                val rooms = supabase.postgrest["rooms"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Room>()
+                val beds = supabase.postgrest["beds"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Bed>()
+                val tenants = supabase.postgrest["tenants"].select { filter { eq("hostel_id", hostelId) } }.decodeList<com.dormiq.domain.model.Tenant>()
+                val issues = supabase.postgrest["issues"].select { 
+                    filter { 
+                        eq("hostel_id", hostelId)
+                        eq("status", "open")
+                    } 
+                }.decodeList<com.dormiq.domain.model.Issue>()
+
+                val activeBedIds = tenants.filter { it.status == "active" }.mapNotNull { it.assignedBedId }.toSet()
+                
+                val stats = OccupancyStats(
+                    totalBeds = beds.size,
+                    occupiedBeds = beds.count { activeBedIds.contains(it.id) || it.status == "occupied" && activeBedIds.contains(it.id) }.let { activeBedIds.size },
+                    vacantBeds = beds.count { !activeBedIds.contains(it.id) && it.status != "blocked" && it.status != "maintenance" },
+                    blockedBeds = beds.count { it.status == "blocked" },
+                    maintenanceBeds = beds.count { it.status == "maintenance" },
+                    totalFloors = floors.size,
+                    totalRooms = rooms.size,
+                    totalTenants = tenants.size,
+                    openIssues = issues.size
+                )
+                emit(stats)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(OccupancyStats())
+            }
+            kotlinx.coroutines.delay(4000) // Poll every 4 seconds
         }
     }
 }

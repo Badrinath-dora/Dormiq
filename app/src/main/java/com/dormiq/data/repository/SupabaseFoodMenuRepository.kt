@@ -18,29 +18,32 @@ class SupabaseFoodMenuRepository @Inject constructor(
     private val _menu = MutableStateFlow<List<FoodMenu>>(emptyList())
 
     override fun getFoodMenu(hostelId: String): Flow<List<FoodMenu>> = flow {
-        try {
-            val response = supabase.postgrest["food_menu"]
-                .select { filter { eq("hostel_id", hostelId) } }
-                .decodeList<FoodMenu>()
-            
-            // Generate standard empty menu for any missing days of the week
-            val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-            val completeMenu = days.map { day ->
-                response.find { it.dayOfWeek.equals(day, ignoreCase = true) } ?: FoodMenu(
-                    hostelId = hostelId,
-                    dayOfWeek = day,
-                    breakfast = "Not Scheduled",
-                    lunch = "Not Scheduled",
-                    snacks = "Not Scheduled",
-                    dinner = "Not Scheduled"
-                )
+        while (true) {
+            try {
+                val response = supabase.postgrest["food_menu"]
+                    .select { filter { eq("hostel_id", hostelId) } }
+                    .decodeList<FoodMenu>()
+                
+                // Generate standard empty menu for any missing days of the week
+                val days = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+                val completeMenu = days.map { day ->
+                    response.find { it.dayOfWeek.equals(day, ignoreCase = true) } ?: FoodMenu(
+                        hostelId = hostelId,
+                        dayOfWeek = day,
+                        breakfast = "Not Scheduled",
+                        lunch = "Not Scheduled",
+                        snacks = "Not Scheduled",
+                        dinner = "Not Scheduled"
+                    )
+                }
+                
+                _menu.value = completeMenu
+                emit(completeMenu)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(_menu.value.filter { it.hostelId == hostelId })
             }
-            
-            _menu.value = completeMenu
-            emit(completeMenu)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emit(_menu.value.filter { it.hostelId == hostelId })
+            kotlinx.coroutines.delay(4000)
         }
     }
 

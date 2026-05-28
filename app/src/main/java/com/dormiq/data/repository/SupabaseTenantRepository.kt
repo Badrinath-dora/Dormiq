@@ -7,48 +7,64 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import com.dormiq.data.manager.ActiveHostelManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SupabaseTenantRepository @Inject constructor(
-    private val supabase: SupabaseClient
+    private val supabase: SupabaseClient,
+    private val activeHostelManager: ActiveHostelManager
 ) : TenantRepository {
 
     private val _tenants = MutableStateFlow<List<Tenant>>(emptyList())
 
     override fun getTenants(hostelId: String): Flow<List<Tenant>> = flow {
-        try {
-            val response = supabase.postgrest["tenants"]
-                .select { filter { eq("hostel_id", hostelId) } }
-                .decodeList<Tenant>()
-            _tenants.value = response
-            emit(response)
-        } catch (e: Exception) {
-            if (e !is kotlinx.coroutines.CancellationException) {
-                e.printStackTrace()
-            }
+        if (hostelId.isBlank()) {
             emit(emptyList())
+            return@flow
+        }
+        while (true) {
+            try {
+                val response = supabase.postgrest["tenants"]
+                    .select { filter { eq("hostel_id", hostelId) } }
+                    .decodeList<Tenant>()
+                _tenants.value = response
+                emit(response)
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    e.printStackTrace()
+                }
+                emit(emptyList())
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 
     override fun getTenantsByRoom(hostelId: String, roomNumber: String): Flow<List<Tenant>> = flow {
-        try {
-            val response = supabase.postgrest["tenants"]
-                .select { 
-                    filter { 
-                        eq("hostel_id", hostelId) 
-                        eq("assigned_room_number", roomNumber)
-                        eq("status", "active")
-                    } 
-                }
-                .decodeList<Tenant>()
-            emit(response)
-        } catch (e: Exception) {
-            if (e !is kotlinx.coroutines.CancellationException) {
-                e.printStackTrace()
-            }
+        if (hostelId.isBlank()) {
             emit(emptyList())
+            return@flow
+        }
+        while (true) {
+            try {
+                val response = supabase.postgrest["tenants"]
+                    .select { 
+                        filter { 
+                            eq("hostel_id", hostelId) 
+                            eq("assigned_room_number", roomNumber)
+                            eq("status", "active")
+                        } 
+                    }
+                    .decodeList<Tenant>()
+                emit(response)
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    e.printStackTrace()
+                }
+                emit(emptyList())
+            }
+            kotlinx.coroutines.delay(4000)
         }
     }
 
@@ -99,23 +115,32 @@ class SupabaseTenantRepository @Inject constructor(
     }
 
     override fun getTenantByUserId(userId: String): Flow<Tenant?> = flow {
-        try {
-            val response = supabase.postgrest["tenants"]
-                .select { filter { eq("user_id", userId) } }
-                .decodeSingleOrNull<Tenant>()
-            emit(response)
-        } catch (e: Exception) {
-            if (e !is kotlinx.coroutines.CancellationException) {
-                e.printStackTrace()
+        while (true) {
+            try {
+                val response = supabase.postgrest["tenants"]
+                    .select { filter { eq("user_id", userId) } }
+                    .decodeSingleOrNull<Tenant>()
+                emit(response)
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    e.printStackTrace()
+                }
+                emit(null)
             }
-            emit(null)
+            kotlinx.coroutines.delay(4000)
         }
     }
 
     override suspend fun createTenant(tenant: Tenant): Result<Tenant> {
         return try {
+            val resolvedHostelId = if (tenant.hostelId.isNullOrBlank()) {
+                activeHostelManager.getActiveHostelId() ?: throw Exception("No active hostel selected")
+            } else {
+                tenant.hostelId
+            }
+            val tenantToInsert = tenant.copy(hostelId = resolvedHostelId)
             val newTenant = supabase.postgrest["tenants"]
-                .insert(tenant) {
+                .insert(tenantToInsert) {
                     select()
                 }.decodeSingle<Tenant>()
             Result.success(newTenant)
@@ -165,6 +190,12 @@ class SupabaseTenantRepository @Inject constructor(
         rentAmount: Double
     ): Result<TenantAllocation> {
         return try {
+            val resolvedHostelId = if (hostelId.isBlank()) {
+                activeHostelManager.getActiveHostelId() ?: throw Exception("No active hostel selected")
+            } else {
+                hostelId
+            }
+
             // 0. Free the old bed if this is a re-assignment
             val currentAllocation = getCurrentAllocation(tenantId)
             if (currentAllocation != null) {
@@ -196,7 +227,7 @@ class SupabaseTenantRepository @Inject constructor(
                 tenantId = tenantId,
                 bedId = bedId,
                 roomId = roomId,
-                hostelId = hostelId,
+                hostelId = resolvedHostelId,
                 checkInDate = java.time.LocalDate.now().toString(),
                 isActive = true
             )

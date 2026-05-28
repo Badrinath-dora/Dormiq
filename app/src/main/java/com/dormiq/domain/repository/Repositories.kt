@@ -92,6 +92,7 @@ interface PaymentRepository {
     suspend fun getPaymentSummary(hostelId: String): Flow<PaymentSummary>
     suspend fun recordPayment(payment: RentPayment): Result<RentPayment>
     suspend fun updatePayment(payment: RentPayment): Result<RentPayment>
+    suspend fun sendPaymentReminder(payment: RentPayment): Result<Unit>
 }
 
 // ─── Gallery & Food Menu Repositories ──────────────────────────────────────────

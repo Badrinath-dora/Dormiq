@@ -6,6 +6,7 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
+import com.dormiq.data.manager.ActiveHostelManager;
 import com.dormiq.data.repository.SupabaseAuthRepository;
 import com.dormiq.data.repository.SupabaseBedRepository;
 import com.dormiq.data.repository.SupabaseFloorRepository;
@@ -30,6 +31,8 @@ import com.dormiq.ui.viewmodel.GalleryFoodViewModel;
 import com.dormiq.ui.viewmodel.GalleryFoodViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.IssueViewModel;
 import com.dormiq.ui.viewmodel.IssueViewModel_HiltModules;
+import com.dormiq.ui.viewmodel.ManagePropertiesViewModel;
+import com.dormiq.ui.viewmodel.ManagePropertiesViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.NoticeViewModel;
 import com.dormiq.ui.viewmodel.NoticeViewModel_HiltModules;
 import com.dormiq.ui.viewmodel.PaymentViewModel;
@@ -403,7 +406,7 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(10).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AssignBedViewModel, AssignBedViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AuthViewModel, AuthViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_DashboardViewModel, DashboardViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_GalleryFoodViewModel, GalleryFoodViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_IssueViewModel, IssueViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_NoticeViewModel, NoticeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PaymentViewModel, PaymentViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PropertyViewModel, PropertyViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_SetupViewModel, SetupViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_TenantViewModel, TenantViewModel_HiltModules.KeyModule.provide()).build());
+      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(11).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AssignBedViewModel, AssignBedViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AuthViewModel, AuthViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_DashboardViewModel, DashboardViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_GalleryFoodViewModel, GalleryFoodViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_IssueViewModel, IssueViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_ManagePropertiesViewModel, ManagePropertiesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_NoticeViewModel, NoticeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PaymentViewModel, PaymentViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PropertyViewModel, PropertyViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_SetupViewModel, SetupViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_TenantViewModel, TenantViewModel_HiltModules.KeyModule.provide()).build());
     }
 
     @Override
@@ -431,38 +434,28 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
     private static final class LazyClassKeyProvider {
       static String com_dormiq_ui_viewmodel_AssignBedViewModel = "com.dormiq.ui.viewmodel.AssignBedViewModel";
 
-      static String com_dormiq_ui_viewmodel_AuthViewModel = "com.dormiq.ui.viewmodel.AuthViewModel";
-
-      static String com_dormiq_ui_viewmodel_GalleryFoodViewModel = "com.dormiq.ui.viewmodel.GalleryFoodViewModel";
-
-      static String com_dormiq_ui_viewmodel_IssueViewModel = "com.dormiq.ui.viewmodel.IssueViewModel";
-
-      static String com_dormiq_ui_viewmodel_DashboardViewModel = "com.dormiq.ui.viewmodel.DashboardViewModel";
-
       static String com_dormiq_ui_viewmodel_NoticeViewModel = "com.dormiq.ui.viewmodel.NoticeViewModel";
 
       static String com_dormiq_ui_viewmodel_PropertyViewModel = "com.dormiq.ui.viewmodel.PropertyViewModel";
 
-      static String com_dormiq_ui_viewmodel_SetupViewModel = "com.dormiq.ui.viewmodel.SetupViewModel";
-
       static String com_dormiq_ui_viewmodel_PaymentViewModel = "com.dormiq.ui.viewmodel.PaymentViewModel";
+
+      static String com_dormiq_ui_viewmodel_IssueViewModel = "com.dormiq.ui.viewmodel.IssueViewModel";
+
+      static String com_dormiq_ui_viewmodel_AuthViewModel = "com.dormiq.ui.viewmodel.AuthViewModel";
+
+      static String com_dormiq_ui_viewmodel_SetupViewModel = "com.dormiq.ui.viewmodel.SetupViewModel";
 
       static String com_dormiq_ui_viewmodel_TenantViewModel = "com.dormiq.ui.viewmodel.TenantViewModel";
 
+      static String com_dormiq_ui_viewmodel_DashboardViewModel = "com.dormiq.ui.viewmodel.DashboardViewModel";
+
+      static String com_dormiq_ui_viewmodel_GalleryFoodViewModel = "com.dormiq.ui.viewmodel.GalleryFoodViewModel";
+
+      static String com_dormiq_ui_viewmodel_ManagePropertiesViewModel = "com.dormiq.ui.viewmodel.ManagePropertiesViewModel";
+
       @KeepFieldType
       AssignBedViewModel com_dormiq_ui_viewmodel_AssignBedViewModel2;
-
-      @KeepFieldType
-      AuthViewModel com_dormiq_ui_viewmodel_AuthViewModel2;
-
-      @KeepFieldType
-      GalleryFoodViewModel com_dormiq_ui_viewmodel_GalleryFoodViewModel2;
-
-      @KeepFieldType
-      IssueViewModel com_dormiq_ui_viewmodel_IssueViewModel2;
-
-      @KeepFieldType
-      DashboardViewModel com_dormiq_ui_viewmodel_DashboardViewModel2;
 
       @KeepFieldType
       NoticeViewModel com_dormiq_ui_viewmodel_NoticeViewModel2;
@@ -471,13 +464,28 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
       PropertyViewModel com_dormiq_ui_viewmodel_PropertyViewModel2;
 
       @KeepFieldType
-      SetupViewModel com_dormiq_ui_viewmodel_SetupViewModel2;
-
-      @KeepFieldType
       PaymentViewModel com_dormiq_ui_viewmodel_PaymentViewModel2;
 
       @KeepFieldType
+      IssueViewModel com_dormiq_ui_viewmodel_IssueViewModel2;
+
+      @KeepFieldType
+      AuthViewModel com_dormiq_ui_viewmodel_AuthViewModel2;
+
+      @KeepFieldType
+      SetupViewModel com_dormiq_ui_viewmodel_SetupViewModel2;
+
+      @KeepFieldType
       TenantViewModel com_dormiq_ui_viewmodel_TenantViewModel2;
+
+      @KeepFieldType
+      DashboardViewModel com_dormiq_ui_viewmodel_DashboardViewModel2;
+
+      @KeepFieldType
+      GalleryFoodViewModel com_dormiq_ui_viewmodel_GalleryFoodViewModel2;
+
+      @KeepFieldType
+      ManagePropertiesViewModel com_dormiq_ui_viewmodel_ManagePropertiesViewModel2;
     }
   }
 
@@ -497,6 +505,8 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
     private Provider<GalleryFoodViewModel> galleryFoodViewModelProvider;
 
     private Provider<IssueViewModel> issueViewModelProvider;
+
+    private Provider<ManagePropertiesViewModel> managePropertiesViewModelProvider;
 
     private Provider<NoticeViewModel> noticeViewModelProvider;
 
@@ -526,16 +536,17 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
       this.dashboardViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
       this.galleryFoodViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
       this.issueViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
-      this.noticeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
-      this.paymentViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
-      this.propertyViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
-      this.setupViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
-      this.tenantViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 9);
+      this.managePropertiesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.noticeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
+      this.paymentViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
+      this.propertyViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
+      this.setupViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 9);
+      this.tenantViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 10);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(10).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AssignBedViewModel, ((Provider) assignBedViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AuthViewModel, ((Provider) authViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_DashboardViewModel, ((Provider) dashboardViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_GalleryFoodViewModel, ((Provider) galleryFoodViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_IssueViewModel, ((Provider) issueViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_NoticeViewModel, ((Provider) noticeViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PaymentViewModel, ((Provider) paymentViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PropertyViewModel, ((Provider) propertyViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_SetupViewModel, ((Provider) setupViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_TenantViewModel, ((Provider) tenantViewModelProvider)).build());
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(11).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AssignBedViewModel, ((Provider) assignBedViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_AuthViewModel, ((Provider) authViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_DashboardViewModel, ((Provider) dashboardViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_GalleryFoodViewModel, ((Provider) galleryFoodViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_IssueViewModel, ((Provider) issueViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_ManagePropertiesViewModel, ((Provider) managePropertiesViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_NoticeViewModel, ((Provider) noticeViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PaymentViewModel, ((Provider) paymentViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_PropertyViewModel, ((Provider) propertyViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_SetupViewModel, ((Provider) setupViewModelProvider)).put(LazyClassKeyProvider.com_dormiq_ui_viewmodel_TenantViewModel, ((Provider) tenantViewModelProvider)).build());
     }
 
     @Override
@@ -545,55 +556,60 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_dormiq_ui_viewmodel_PropertyViewModel = "com.dormiq.ui.viewmodel.PropertyViewModel";
-
-      static String com_dormiq_ui_viewmodel_AssignBedViewModel = "com.dormiq.ui.viewmodel.AssignBedViewModel";
-
-      static String com_dormiq_ui_viewmodel_AuthViewModel = "com.dormiq.ui.viewmodel.AuthViewModel";
-
-      static String com_dormiq_ui_viewmodel_NoticeViewModel = "com.dormiq.ui.viewmodel.NoticeViewModel";
-
-      static String com_dormiq_ui_viewmodel_IssueViewModel = "com.dormiq.ui.viewmodel.IssueViewModel";
-
-      static String com_dormiq_ui_viewmodel_DashboardViewModel = "com.dormiq.ui.viewmodel.DashboardViewModel";
-
-      static String com_dormiq_ui_viewmodel_TenantViewModel = "com.dormiq.ui.viewmodel.TenantViewModel";
-
-      static String com_dormiq_ui_viewmodel_GalleryFoodViewModel = "com.dormiq.ui.viewmodel.GalleryFoodViewModel";
+      static String com_dormiq_ui_viewmodel_ManagePropertiesViewModel = "com.dormiq.ui.viewmodel.ManagePropertiesViewModel";
 
       static String com_dormiq_ui_viewmodel_PaymentViewModel = "com.dormiq.ui.viewmodel.PaymentViewModel";
 
+      static String com_dormiq_ui_viewmodel_DashboardViewModel = "com.dormiq.ui.viewmodel.DashboardViewModel";
+
+      static String com_dormiq_ui_viewmodel_NoticeViewModel = "com.dormiq.ui.viewmodel.NoticeViewModel";
+
+      static String com_dormiq_ui_viewmodel_AssignBedViewModel = "com.dormiq.ui.viewmodel.AssignBedViewModel";
+
       static String com_dormiq_ui_viewmodel_SetupViewModel = "com.dormiq.ui.viewmodel.SetupViewModel";
 
-      @KeepFieldType
-      PropertyViewModel com_dormiq_ui_viewmodel_PropertyViewModel2;
+      static String com_dormiq_ui_viewmodel_TenantViewModel = "com.dormiq.ui.viewmodel.TenantViewModel";
+
+      static String com_dormiq_ui_viewmodel_PropertyViewModel = "com.dormiq.ui.viewmodel.PropertyViewModel";
+
+      static String com_dormiq_ui_viewmodel_AuthViewModel = "com.dormiq.ui.viewmodel.AuthViewModel";
+
+      static String com_dormiq_ui_viewmodel_IssueViewModel = "com.dormiq.ui.viewmodel.IssueViewModel";
+
+      static String com_dormiq_ui_viewmodel_GalleryFoodViewModel = "com.dormiq.ui.viewmodel.GalleryFoodViewModel";
 
       @KeepFieldType
-      AssignBedViewModel com_dormiq_ui_viewmodel_AssignBedViewModel2;
-
-      @KeepFieldType
-      AuthViewModel com_dormiq_ui_viewmodel_AuthViewModel2;
-
-      @KeepFieldType
-      NoticeViewModel com_dormiq_ui_viewmodel_NoticeViewModel2;
-
-      @KeepFieldType
-      IssueViewModel com_dormiq_ui_viewmodel_IssueViewModel2;
-
-      @KeepFieldType
-      DashboardViewModel com_dormiq_ui_viewmodel_DashboardViewModel2;
-
-      @KeepFieldType
-      TenantViewModel com_dormiq_ui_viewmodel_TenantViewModel2;
-
-      @KeepFieldType
-      GalleryFoodViewModel com_dormiq_ui_viewmodel_GalleryFoodViewModel2;
+      ManagePropertiesViewModel com_dormiq_ui_viewmodel_ManagePropertiesViewModel2;
 
       @KeepFieldType
       PaymentViewModel com_dormiq_ui_viewmodel_PaymentViewModel2;
 
       @KeepFieldType
+      DashboardViewModel com_dormiq_ui_viewmodel_DashboardViewModel2;
+
+      @KeepFieldType
+      NoticeViewModel com_dormiq_ui_viewmodel_NoticeViewModel2;
+
+      @KeepFieldType
+      AssignBedViewModel com_dormiq_ui_viewmodel_AssignBedViewModel2;
+
+      @KeepFieldType
       SetupViewModel com_dormiq_ui_viewmodel_SetupViewModel2;
+
+      @KeepFieldType
+      TenantViewModel com_dormiq_ui_viewmodel_TenantViewModel2;
+
+      @KeepFieldType
+      PropertyViewModel com_dormiq_ui_viewmodel_PropertyViewModel2;
+
+      @KeepFieldType
+      AuthViewModel com_dormiq_ui_viewmodel_AuthViewModel2;
+
+      @KeepFieldType
+      IssueViewModel com_dormiq_ui_viewmodel_IssueViewModel2;
+
+      @KeepFieldType
+      GalleryFoodViewModel com_dormiq_ui_viewmodel_GalleryFoodViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -624,7 +640,7 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
           return (T) new AuthViewModel(singletonCImpl.supabaseAuthRepositoryProvider.get(), singletonCImpl.supabaseTenantRepositoryProvider.get());
 
           case 2: // com.dormiq.ui.viewmodel.DashboardViewModel 
-          return (T) new DashboardViewModel(singletonCImpl.supabaseHostelRepositoryProvider.get(), singletonCImpl.supabaseAuthRepositoryProvider.get(), singletonCImpl.provideSupabaseClientProvider.get());
+          return (T) new DashboardViewModel(singletonCImpl.supabaseHostelRepositoryProvider.get(), singletonCImpl.supabaseAuthRepositoryProvider.get(), singletonCImpl.activeHostelManagerProvider.get(), singletonCImpl.provideSupabaseClientProvider.get());
 
           case 3: // com.dormiq.ui.viewmodel.GalleryFoodViewModel 
           return (T) new GalleryFoodViewModel(singletonCImpl.supabaseGalleryRepositoryProvider.get(), singletonCImpl.supabaseFoodMenuRepositoryProvider.get());
@@ -632,19 +648,22 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
           case 4: // com.dormiq.ui.viewmodel.IssueViewModel 
           return (T) new IssueViewModel(singletonCImpl.supabaseIssueRepositoryProvider.get());
 
-          case 5: // com.dormiq.ui.viewmodel.NoticeViewModel 
+          case 5: // com.dormiq.ui.viewmodel.ManagePropertiesViewModel 
+          return (T) new ManagePropertiesViewModel(singletonCImpl.supabaseHostelRepositoryProvider.get(), singletonCImpl.supabaseAuthRepositoryProvider.get(), singletonCImpl.activeHostelManagerProvider.get());
+
+          case 6: // com.dormiq.ui.viewmodel.NoticeViewModel 
           return (T) new NoticeViewModel(singletonCImpl.supabaseNoticeRepositoryProvider.get());
 
-          case 6: // com.dormiq.ui.viewmodel.PaymentViewModel 
+          case 7: // com.dormiq.ui.viewmodel.PaymentViewModel 
           return (T) new PaymentViewModel(singletonCImpl.supabasePaymentRepositoryProvider.get(), singletonCImpl.supabaseTenantRepositoryProvider.get());
 
-          case 7: // com.dormiq.ui.viewmodel.PropertyViewModel 
+          case 8: // com.dormiq.ui.viewmodel.PropertyViewModel 
           return (T) new PropertyViewModel(singletonCImpl.supabaseFloorRepositoryProvider.get(), singletonCImpl.supabaseRoomRepositoryProvider.get(), singletonCImpl.supabaseBedRepositoryProvider.get(), singletonCImpl.supabaseTenantRepositoryProvider.get());
 
-          case 8: // com.dormiq.ui.viewmodel.SetupViewModel 
+          case 9: // com.dormiq.ui.viewmodel.SetupViewModel 
           return (T) new SetupViewModel(singletonCImpl.supabaseHostelRepositoryProvider.get(), singletonCImpl.supabaseFloorRepositoryProvider.get(), singletonCImpl.supabaseRoomRepositoryProvider.get(), singletonCImpl.supabaseBedRepositoryProvider.get(), singletonCImpl.supabaseAuthRepositoryProvider.get());
 
-          case 9: // com.dormiq.ui.viewmodel.TenantViewModel 
+          case 10: // com.dormiq.ui.viewmodel.TenantViewModel 
           return (T) new TenantViewModel(singletonCImpl.supabaseTenantRepositoryProvider.get(), singletonCImpl.supabaseRoomRepositoryProvider.get(), singletonCImpl.supabaseIssueRepositoryProvider.get(), singletonCImpl.supabaseNoticeRepositoryProvider.get());
 
           default: throw new AssertionError(id);
@@ -740,6 +759,8 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
 
     private Provider<SupabaseClient> provideSupabaseClientProvider;
 
+    private Provider<ActiveHostelManager> activeHostelManagerProvider;
+
     private Provider<SupabaseAuthRepository> supabaseAuthRepositoryProvider;
 
     private Provider<SupabaseFloorRepository> supabaseFloorRepositoryProvider;
@@ -771,21 +792,22 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
       this.provideSupabaseClientProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseClient>(singletonCImpl, 1));
+      this.activeHostelManagerProvider = DoubleCheck.provider(new SwitchingProvider<ActiveHostelManager>(singletonCImpl, 2));
       this.supabaseAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseAuthRepository>(singletonCImpl, 0));
-      this.supabaseFloorRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseFloorRepository>(singletonCImpl, 2));
-      this.supabaseRoomRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseRoomRepository>(singletonCImpl, 3));
-      this.supabaseBedRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseBedRepository>(singletonCImpl, 4));
-      this.supabaseTenantRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseTenantRepository>(singletonCImpl, 5));
-      this.supabaseHostelRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseHostelRepository>(singletonCImpl, 6));
-      this.supabaseGalleryRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseGalleryRepository>(singletonCImpl, 7));
-      this.supabaseFoodMenuRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseFoodMenuRepository>(singletonCImpl, 8));
-      this.supabaseIssueRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseIssueRepository>(singletonCImpl, 9));
-      this.supabaseNoticeRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseNoticeRepository>(singletonCImpl, 10));
-      this.supabasePaymentRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabasePaymentRepository>(singletonCImpl, 11));
+      this.supabaseFloorRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseFloorRepository>(singletonCImpl, 3));
+      this.supabaseRoomRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseRoomRepository>(singletonCImpl, 4));
+      this.supabaseBedRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseBedRepository>(singletonCImpl, 5));
+      this.supabaseTenantRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseTenantRepository>(singletonCImpl, 6));
+      this.supabaseHostelRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseHostelRepository>(singletonCImpl, 7));
+      this.supabaseGalleryRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseGalleryRepository>(singletonCImpl, 8));
+      this.supabaseFoodMenuRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseFoodMenuRepository>(singletonCImpl, 9));
+      this.supabaseIssueRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseIssueRepository>(singletonCImpl, 10));
+      this.supabaseNoticeRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabaseNoticeRepository>(singletonCImpl, 11));
+      this.supabasePaymentRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<SupabasePaymentRepository>(singletonCImpl, 12));
     }
 
     @Override
-    public void injectDormiqApplication(DormiqApplication arg0) {
+    public void injectDormiqApplication(DormiqApplication dormiqApplication) {
     }
 
     @Override
@@ -818,39 +840,42 @@ public final class DaggerDormiqApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.dormiq.data.repository.SupabaseAuthRepository 
-          return (T) new SupabaseAuthRepository(singletonCImpl.provideSupabaseClientProvider.get());
+          return (T) new SupabaseAuthRepository(singletonCImpl.provideSupabaseClientProvider.get(), singletonCImpl.activeHostelManagerProvider.get());
 
           case 1: // io.github.jan.supabase.SupabaseClient 
           return (T) SupabaseModule_ProvideSupabaseClientFactory.provideSupabaseClient(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 2: // com.dormiq.data.repository.SupabaseFloorRepository 
+          case 2: // com.dormiq.data.manager.ActiveHostelManager 
+          return (T) new ActiveHostelManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 3: // com.dormiq.data.repository.SupabaseFloorRepository 
           return (T) new SupabaseFloorRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 3: // com.dormiq.data.repository.SupabaseRoomRepository 
+          case 4: // com.dormiq.data.repository.SupabaseRoomRepository 
           return (T) new SupabaseRoomRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 4: // com.dormiq.data.repository.SupabaseBedRepository 
+          case 5: // com.dormiq.data.repository.SupabaseBedRepository 
           return (T) new SupabaseBedRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 5: // com.dormiq.data.repository.SupabaseTenantRepository 
-          return (T) new SupabaseTenantRepository(singletonCImpl.provideSupabaseClientProvider.get());
+          case 6: // com.dormiq.data.repository.SupabaseTenantRepository 
+          return (T) new SupabaseTenantRepository(singletonCImpl.provideSupabaseClientProvider.get(), singletonCImpl.activeHostelManagerProvider.get());
 
-          case 6: // com.dormiq.data.repository.SupabaseHostelRepository 
+          case 7: // com.dormiq.data.repository.SupabaseHostelRepository 
           return (T) new SupabaseHostelRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 7: // com.dormiq.data.repository.SupabaseGalleryRepository 
+          case 8: // com.dormiq.data.repository.SupabaseGalleryRepository 
           return (T) new SupabaseGalleryRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 8: // com.dormiq.data.repository.SupabaseFoodMenuRepository 
+          case 9: // com.dormiq.data.repository.SupabaseFoodMenuRepository 
           return (T) new SupabaseFoodMenuRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 9: // com.dormiq.data.repository.SupabaseIssueRepository 
+          case 10: // com.dormiq.data.repository.SupabaseIssueRepository 
           return (T) new SupabaseIssueRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 10: // com.dormiq.data.repository.SupabaseNoticeRepository 
+          case 11: // com.dormiq.data.repository.SupabaseNoticeRepository 
           return (T) new SupabaseNoticeRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
-          case 11: // com.dormiq.data.repository.SupabasePaymentRepository 
+          case 12: // com.dormiq.data.repository.SupabasePaymentRepository 
           return (T) new SupabasePaymentRepository(singletonCImpl.provideSupabaseClientProvider.get());
 
           default: throw new AssertionError(id);
